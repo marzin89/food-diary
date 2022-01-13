@@ -1,0 +1,149 @@
+/* Mobil */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-size: 1em;
+    background-image: url('bilder/bakgrund-mobil.jpg');
+}
+
+#page-wrapper {
+    width: 100%;
+    min-height: 100vh;
+    background-color: rgba(255, 255, 255, 0.3);
+}
+
+header {
+    width: 100%;
+    padding: 10px;
+}
+
+#logo {
+    font-family: Cambria, Cochin, Georgia, Times, 'Times New Roman', serif;
+    font-size: 1.7em;
+    font-weight: bold;
+    font-style: oblique;
+    text-align: center;
+}
+
+section, form {
+    padding: 10px;
+    margin: 10px 0;
+    background-color: rgba(255, 255, 255, 0.5);
+}
+
+form > div {
+    margin: 5px 0;
+}
+
+input, select {
+    font-family: inherit;
+    font-size: inherit;
+    width: 100%;
+    padding: 2.5px 5px;
+}
+
+#food-name-autofill {
+    display: none;
+}
+
+table {
+    margin-bottom: 20px;
+    width: 100%;
+}
+
+.table-left, .table-right {
+    width: 50%;
+}
+
+.table-right {
+    text-align: right;
+}
+
+.error {
+    display: none;
+}
+
+#get-all-meals, #get-meals-date-range {
+    overflow: auto;
+    border: 1px solid black;
+}
+
+.admin-form-radio-left {
+    width: 10%;
+    float: left;
+}
+
+.admin-form-radio-right {
+    width: 90%;
+    float: right;
+}
+
+footer {
+    width: 100%;
+    height: 50px;
+}
+
+#copyright {
+    text-align: center;
+    font-weight: bold;
+}
+/* Surfplatta */
+@media only screen and (min-width: 481px) and (max-width: 768px) {
+    body {
+        background-image: url('bilder/bakgrund-surfplatta.jpg');
+    }
+
+    header {
+        max-width: 600px;
+        margin: 0 auto;
+    }
+
+    main {
+        max-width: 600px;
+        margin: 100px auto;
+    }
+
+    form {
+        max-width: 600px;
+        margin: 0 auto;
+    }
+
+    footer {
+        max-width: 600px;
+        margin: 0 auto;
+    }
+}
+/* Desktop */
+@media only screen and (min-width: 769px) {
+    body {
+        background-image: url('bilder/bakgrund-desktop.jpg');
+    }
+
+    #page-wrapper {
+        margin: 0 auto;
+    }
+
+    header {
+        max-width: 600px;
+        margin: 0 auto;
+    }
+
+    main {
+        max-width: 600px;
+        margin: 100px auto;
+    }
+    
+    form {
+        max-width: 600px;
+    }
+
+    footer {
+        max-width: 600px;
+        margin: 0 auto;
+    }
+}
