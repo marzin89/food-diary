@@ -1,4 +1,4 @@
-// Importerar React och CSS
+// Importerar React
 import React from 'react';
 
 // Sidhuvud
