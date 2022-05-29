@@ -30,7 +30,7 @@ header {
     text-align: center;
 }
 
-#welcome, #admin-form, #search, #meal-section, #login-form {
+.welcome, #admin-form, #search, #meal-section, #login-form {
     padding: 10px;
     margin: 10px 0;
     background-color: rgba(255, 255, 255, 0.5);
@@ -185,7 +185,7 @@ button {
     margin-top: 10px;
 }
 
-#meals {
+.meals {
     margin-top: 30px;
 }
 
@@ -198,12 +198,12 @@ input[type="radio"] {
     overflow: auto;
 }
 
-#date-heading {
+.date-heading {
     width: 50%;
     float: left;
 }
 
-#date {
+.date {
     width: 50%;
     float: right;
     text-align: right;
@@ -228,7 +228,7 @@ select {
     opacity: 1;
 }
 
-::ms-input-placeholder {
+:-ms-input-placeholder {
     color: black;
 }
 

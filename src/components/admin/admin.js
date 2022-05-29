@@ -112,7 +112,7 @@ class Admin extends React.Component {
     render() {
         return (
             <div>
-                <section id="welcome">
+                <section className="welcome">
                     <h1>Välkommen till kostdagboken!</h1>
                     <p id="logout"><a id="logout-link" className="link" href="index.html" 
                         onClick={this.handleLogout}>Logga ut</a></p>
@@ -131,7 +131,7 @@ class Admin extends React.Component {
                 {/* Formulär för att lägga till måltider. Alla näringsvärden läggs till per 100 gram
                     och beräknas sedan baserat på den angivna mängden. Varje fält har en handler-funktion
                     som lagrar värdet i state vid inmatning. */}
-                <form action="" method="" id="admin-form">
+                <form id="admin-form">
                     <h2>{this.state.addMeals ? 'Lägg till måltider' : 'Redigera måltider'}</h2>
                     <div id="add-meals">
                         {/* Måltidens namn */}
@@ -224,7 +224,8 @@ class Admin extends React.Component {
                         <div id="get-meals-date-range">
                             <input type="radio" name="get-meals-options" id="get-meals-date-range-radio" value="Begränsad tidsperiod"
                                 className="admin-form-radio-left" onChange={this.handleActionChange}></input>
-                            <label htmlFor="get-meals-date-range" className="admin-form-radio-right">Begränsad tidsperiod</label>
+                            <label htmlFor="get-meals-date-range-radio" className="admin-form-radio-right">Begränsad tidsperiod
+                            </label>
                         </div>
                         <select id="date-range" onChange={this.handleDateRangeChange}>
                             <option ></option>
@@ -241,13 +242,14 @@ class Admin extends React.Component {
                     {this.state.meals ? this.state.meals.map(element => {
                         return (
                             // Denna sektion visas endast om det finns måltider att visa
-                            <div id="meals" style={this.state.meals.length > 0 ? {display: 'block'} : {display: 'none'}}>
+                            <div className="meals" style={this.state.meals.length > 0 ? {display: 'block'} : 
+                                {display: 'none'}}>
                                 {/* Måltidens namn */}
                                 <h3 key={element.mealID}>{element.mealName}</h3>
                                 {/* Måltidens datum skrivs ut utan tid (tidsstämpel i databasen) */}
                                 <div className="row">
-                                    <p id="date-heading" className="meal-heading">Datum</p>
-                                    <p id="date" className="meal-detail">{element.date ? element.date.slice(0, 10) 
+                                    <p className="date-heading meal-heading">Datum</p>
+                                    <p className="date meal-detail">{element.date ? element.date.slice(0, 10) 
                                         : null}</p>
                                 </div>
                                 {/* Loopar igenom arrayen med ingredienser och skriver ut namn och mängd */}

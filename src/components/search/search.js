@@ -52,7 +52,7 @@ class Search extends React.Component {
                     <div>
                         <label htmlFor="food-category">Kategori</label>
                         <select name="food-category" id="food-category" onChange={this.handleCategoryChange}>
-                            <option value=""></option>
+                            <option label="empty" value=""></option>
                             <option value="Frukt och bär">Frukt och bär</option>
                             <option value="Grönsaker">Grönsaker</option>
                             <option value="Potatis och rotfrukter">Potatis och rotfrukter</option>

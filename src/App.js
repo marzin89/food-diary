@@ -41,7 +41,7 @@ class Main extends React.Component {
   render() {
     return (
       <main>
-        <section id="welcome">
+        <section className="welcome">
           <h1 style={ this.state.signedIn ? {display: 'none'} : {display: 'block'}}>
             Välkommen till FooDiary</h1>
           <p style={ this.state.signedIn ? {display: 'none'} : {display: 'block'}}>
