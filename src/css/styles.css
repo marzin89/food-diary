@@ -228,7 +228,7 @@ select {
     opacity: 1;
 }
 
-::ms-input-placeholder {
+:-ms-input-placeholder {
     color: black;
 }
 
