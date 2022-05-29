@@ -228,7 +228,7 @@ class Admin extends React.Component {
                             </label>
                         </div>
                         <select id="date-range" onChange={this.handleDateRangeChange}>
-                            <option ></option>
+                            <option label="empty" ></option>
                             <option value="Senaste veckan">Senaste veckan</option>
                             <option value="Senaste månaden">Senaste månaden</option>
                             <option value="Senaste tre månaderna">Senaste tre månaderna</option>
