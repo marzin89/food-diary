@@ -11,9 +11,12 @@ class Search extends React.Component {
         super(props);
 
         // Binder this till funktionerna
-        this.handleNameChange = this.handleNameChange.bind(this);
-        this.handleCategoryChange = this.handleCategoryChange.bind(this);
-        this.handleSubmit = this.handleSubmit.bind(this);
+        this.handleNameChange         = this.handleNameChange.bind(this);
+        this.handleCategoryChange     = this.handleCategoryChange.bind(this);
+        this.handleSubmit             = this.handleSubmit.bind(this);
+        this.getFoodByName            = this.getFoodByName.bind(this);
+        this.getFoodByCategory        = this.getFoodByCategory.bind(this);
+        this.getFoodByNameAndCategory = this.getFoodByNameAndCategory.bind(this);
 
         /* Lagrar livsmedel, namn, kategori, huruvida formuläret har skickats
             samt eventuella felmeddelanden */

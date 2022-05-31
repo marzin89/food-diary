@@ -22,7 +22,7 @@ class Main extends React.Component {
       Vilka sektioner som visas/döljs styrs i hög grad härifrån. */
     this.state = {
       username:     sessionStorage.getItem('user'),
-      signedIn:     false,
+      signedIn:     sessionStorage.getItem('signedIn'),
       error:        false,
       errorMessage: '',
     }
