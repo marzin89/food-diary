@@ -67,6 +67,7 @@ class Admin extends React.Component {
             dateRange:        '',
             // Måltider
             meals:            [],
+            // Namn, livsmedel, kategori, mängd, näringstäthet och näringsvärde
             mealName:         sessionStorage.getItem('name'),
             food:             '',
             category:         '',
@@ -93,13 +94,12 @@ class Admin extends React.Component {
                 totalAsh:           '',
                 date:               ''
             },
-            // Livsmedelskategori
-            category:          '',
             // Fel- och bekräftelsemeddelanden (skrivs ut om true)
-            error:          false,
-            errorMessage:   '',
-            confirm:        false,
-            confirmMessage: '',
+            error:                 false,
+            errorMessage:          '',
+            errorMessageDateRange: '',
+            confirm:               false,
+            confirmMessage:        '',
         }
 
         // Ändrar sidans namn
@@ -228,7 +228,7 @@ class Admin extends React.Component {
                             </label>
                         </div>
                         <select id="date-range" onChange={this.handleDateRangeChange}>
-                            <option label="empty" ></option>
+                            <option value="">-</option>
                             <option value="Senaste veckan">Senaste veckan</option>
                             <option value="Senaste månaden">Senaste månaden</option>
                             <option value="Senaste tre månaderna">Senaste tre månaderna</option>
@@ -238,6 +238,9 @@ class Admin extends React.Component {
                     </div>
                     {/* Hämtar måltider */}
                     <button id="get-meals-submit" onClick={this.getMeals}>Filtrera</button>
+                    {/* Skriver ut eventuella felmeddelanden */}
+                    <p className="error" style={this.state.error ? {display: 'block'} : {display: 'none'}}>
+                        {this.state.errorMessageDateRange}</p>
                     {/* Loopar igenom state-arrayen och skriver ut användarens måltider */}
                     {this.state.meals ? this.state.meals.map(element => {
                         return (
@@ -426,10 +429,12 @@ class Admin extends React.Component {
                     error:        true,
                     errorMessage: 'Kunde inte hitta några måltider.',
                 })
-            // Lagrar måltider i state
+            // Tar bort eventuella felmeddelanden och lagrar måltider i state
             } else {
                 this.setState({
-                    meals: data,
+                    error:        false,
+                    errorMessage: '',
+                    meals:        data,
                 });
             }
         })
@@ -455,10 +460,12 @@ class Admin extends React.Component {
                     error:        true,
                     errorMessage: 'Kunde inte hitta några måltider.',
                 })
-            // Lagrar måltiderna i state
+            // Tar bort eventuella felmeddelanden och lagrar måltiderna i state
             } else {
                 this.setState({
-                    meals: data,
+                    error:        false,
+                    errorMessage: '',
+                    meals:        data,
                 });
             }
         }))
@@ -482,19 +489,31 @@ class Admin extends React.Component {
         if (this.state.getAllMeals) {
             sessionStorage.removeItem('error');
 
+            this.setState({
+                error:                 false,
+                errorMessageDateRange: '',
+            })
+
             this.getAllMeals();
         
-        } else if (this.state.getSelectedMeals && this.state.dateRange != '') {
+        } else if (this.state.getSelectedMeals && this.state.dateRange !== '' &&
+            this.state.dateRange !== '-') {
             sessionStorage.removeItem('error');
+
+            this.setState({
+                error:                 false,
+                errorMessageDateRange: '',
+            })
 
             this.getMealsByDateRange();
         
-        } else if (this.state.getSelectedMeals && !this.state.dateRange) {
+        } else if (this.state.getSelectedMeals && !this.state.dateRange || 
+            this.state.dateRange == '-') {
             sessionStorage.setItem('error', true);
 
             this.setState({
-                error:        true,
-                errorMessage: 'Du måste välja en tidsperiod.',
+                error:                 true,
+                errorMessageDateRange: 'Du måste välja en tidsperiod.',
             })
         }
     }
@@ -525,7 +544,7 @@ class Admin extends React.Component {
                 sessionStorage.setItem('error', true);
                 
                 this.setState({
-                    error: true,
+                    error:        true,
                     errorMessage: 'Alla fält är obligatoriska.',
                 });
 
@@ -534,9 +553,9 @@ class Admin extends React.Component {
                 sessionStorage.removeItem('error');
 
                 this.setState({
-                    error: false,
+                    error:        false,
                     errorMessage: '',
-                });
+                })
             }
         }
 
@@ -651,22 +670,15 @@ class Admin extends React.Component {
     addMeal(e) {
         // Förhindrar att sidan laddas om när formuläret skickas
         e.preventDefault();
-        // Lagrar ingredienserna i state
+        // Ändrar status
         this.setState({
-            meal: {meal: ingredients},
             editMeals: false,
         });
 
-        /* Här lagras användarens måltider. Detta för att kunna räkna ut ett id
-            baserat på arrayens längd */
-        let userMeals = [];
-        // Lägger till användarens måltider i arrayen
-        this.state.meals.map(meal => {
-            if (meal.username == sessionStorage.getItem('user')) {
-                userMeals.push(meal);
-            }
-        });
+        // Arrayen används för att räkna ut ett id
+        let userMeals = this.state.meals;
 
+        // Sorterar arrayen så att den högsta siffran hamnar sist
         userMeals.sort((a, b) => {
             return a.mealID - b.mealID;
         })
@@ -991,10 +1003,6 @@ class Admin extends React.Component {
             addMeals:    false,
             editMeals:   false,
             deleteMeals: true,
-        });
-        // Lagrar måltidens id i state
-        this.setState({
-            meal: {mealID: index}
         });
 
         // DELETE-anrop

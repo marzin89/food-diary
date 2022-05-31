@@ -21,7 +21,7 @@ class Main extends React.Component {
     /* Här lagras status för inloggning samt felmeddelanden. 
       Vilka sektioner som visas/döljs styrs i hög grad härifrån. */
     this.state = {
-      username:     '',
+      username:     sessionStorage.getItem('user'),
       signedIn:     false,
       error:        false,
       errorMessage: '',
@@ -93,8 +93,6 @@ class Main extends React.Component {
 
         /* Lagrar inloggningen samt tar bort eventuella fel/felmeddelanden */
         this.setState({
-          error:        false,
-          errorMessage: '',
           username:     username, 
           signedIn:     true,
         });
@@ -125,14 +123,6 @@ class Main extends React.Component {
 
     // Ändrar sidans namn
     document.title = 'FooDiary';
-  }
-
-  /* Funktionen förhindrar att användaren "loggas in" eller "loggas ut"
-    när man laddar om sidan */
-  componentDidMount() {
-    if (sessionStorage.getItem('signedIn')) {
-      this.setState({signedIn: true});
-    }
   }
 }
 

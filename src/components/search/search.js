@@ -52,7 +52,7 @@ class Search extends React.Component {
                     <div>
                         <label htmlFor="food-category">Kategori</label>
                         <select name="food-category" id="food-category" onChange={this.handleCategoryChange}>
-                            <option label="empty" value=""></option>
+                            <option value="">-</option>
                             <option value="Frukt och bär">Frukt och bär</option>
                             <option value="Grönsaker">Grönsaker</option>
                             <option value="Potatis och rotfrukter">Potatis och rotfrukter</option>
@@ -87,7 +87,8 @@ class Search extends React.Component {
         this.setState({submitted: true});
 
         // Lagrar ett felmeddelande om varken livsmedel eller kategori har angetts
-        if (!this.state.foodName && !this.state.foodCategory) {
+        if (!this.state.foodName && !this.state.foodCategory ||
+            this.state.foodCategory == '-') {
             this.setState({
                 error:        true,
                 errorMessage: 'Du måste ange ett livsmedel eller välja en kategori.',
@@ -127,10 +128,9 @@ class Search extends React.Component {
             // Konverterar från JSON
             .then(response => response.json())
             .then(data => {
-                // Tömmer state-arrayen och lagrar ett felmeddelande om livsmedlet inte hittades
+                // Lagrar ett felmeddelande om livsmedlet inte hittades
                 if(!data.length) {
                     this.setState({
-                        foods:        [],
                         error:        true,
                         errorMessage: 'Det gick inte att hitta livsmedlet.',
                     });
@@ -165,11 +165,10 @@ class Search extends React.Component {
             // Konverterar från JSON
             .then(response => response.json())
 
-            // Tömmer state-arrayen och lagrar ett felmeddelande om inga livsmedel hittades
+            // Lagrar ett felmeddelande om inga livsmedel hittades
             .then(data => {
                 if (!data.length) {
                     this.setState({
-                        foods:        [],
                         error:        true,
                         errorMessage: 'Kunde inte hitta några livsmedel.',
                     })
@@ -204,11 +203,10 @@ class Search extends React.Component {
             // Konverterar från JSON
             .then(response => response.json())
 
-            // Tömmer state-arrayen och lagrar ett felmeddelande om inga livsmedel hittades
+            // Lagrar ett felmeddelande om inga livsmedel hittades
             .then(data => {
                 if (!data.length) {
                     this.setState({
-                        foods:        [],
                         error:        true,
                         errorMessage: 'Kunde inte hitta några livsmedel.',
                     });
