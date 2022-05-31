@@ -71,6 +71,11 @@ class Login extends React.Component {
         e.preventDefault();
 
         if (this.state.username && this.state.password) {
+            // Tar bort eventuella felmeddelanden
+            this.setState({
+                error:        false,
+                errorMessage: '',
+            })
             // Kör callback-funktionen i props
             this.props.function(this.state.username, this.state.password);
         
