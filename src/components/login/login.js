@@ -70,7 +70,6 @@ class Login extends React.Component {
         // Förhindrar att sidan laddas om
         e.preventDefault();
 
-        // Tar bort eventuella felmeddelanden om användarnamn och lösenord har angetts
         if (this.state.username && this.state.password) {
             // Kör callback-funktionen i props
             this.props.function(this.state.username, this.state.password);

@@ -91,8 +91,10 @@ class Main extends React.Component {
         sessionStorage.setItem('signedIn', true);
         sessionStorage.setItem('user', username);
 
-        /* Lagrar inloggningen samt tar bort eventuella fel/felmeddelanden */
+        // Lagrar inloggningen samt tar bort eventuella felmeddelanden
         this.setState({
+          error:        false,
+          errorMessage: '',
           username:     username, 
           signedIn:     true,
         });
