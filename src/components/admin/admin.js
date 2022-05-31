@@ -729,6 +729,9 @@ class Admin extends React.Component {
                         + ' Försök igen senare.',
                 })
             })
+
+            // Tömmer arrayen med ingredienser
+            ingredients = [];
         }
     }
     
@@ -989,6 +992,10 @@ class Admin extends React.Component {
                         + ' Försök igen senare.'
                 })
             })
+
+            // Tömmer arrayerna med ingredienser
+            ingredients        = [];
+            updatedIngredients = [];
         }
     }
 
