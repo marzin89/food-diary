@@ -1,24 +1,7 @@
 // Importerar, React, sökformuläret och CSS
 import React from 'react';
 import { useState } from 'react/cjs/react.production.min';
-// import './css/styles.css';
 import Search from '../search/search';
-
-// Här lagras ingredienser och näringsvärden
-let ingredients        = [];
-let updatedIngredients = [];
-let totalCalories      = 0;
-let totalProtein       = 0;
-let totalCarbohydrates = 0;
-let totalFats          = 0;
-let totalSalt          = 0;
-let totalWater         = 0;
-let totalAsh           = 0;
-
-/* Denna variabel används för att hitta index i ingredients-arrayen vid redigering.
-    Arrayen används då för att lagra de ingredienser som ingår i måltiden som ska redigeras.
-    Inmatningsfälten fylls i med de värden som finns i denna array. */
-let count = 0;
 
 // Inmatningsfält för måltider
 const inputs = document.getElementsByClassName('meal-input');
@@ -49,8 +32,6 @@ class Admin extends React.Component {
         this.getAllMeals               = this.getAllMeals.bind(this);
         this.getMealsByDateRange       = this.getMealsByDateRange.bind(this);
         this.addMeal                   = this.addMeal.bind(this);
-        this.editMeal                  = this.editMeal.bind(this);
-        this.updateMeal                = this.updateMeal.bind(this);
         this.deleteMeal                = this.deleteMeal.bind(this);
         this.handleLogout              = this.handleLogout.bind(this);
         this.setState                  = this.setState.bind(this);
@@ -58,42 +39,35 @@ class Admin extends React.Component {
         this.state = {
             /* Dessa properties används främst för att styra gränssnittets 
             utseende beroende på vad som ska göras */
-            addMeals:         true,
-            getAllMeals:      true,
-            getSelectedMeals: false,
-            editMeals:        false,
-            deleteMeals:      false,
+            addMeals:           true,
+            getAllMeals:        true,
+            getSelectedMeals:   false,
+            deleteMeals:        false,
             // Tidsintervall vid filtrering av måltider
-            dateRange:        '',
+            dateRange:          '',
             // Måltider
-            meals:            [],
+            meals:              [],
+            // Ingredienser
+            ingredients:        [],
             // Namn, livsmedel, kategori, mängd, näringstäthet och näringsvärde
-            mealName:         sessionStorage.getItem('name'),
-            food:             '',
-            category:         '',
-            quantity:         '',
-            calories:         '',
-            protein:          '',
-            carbohydrates:    '',
-            fats:             '',
-            salt:             '',
-            water:            '',
-            ash:              '',
-            // Måltid
-            meal: {
-                username:           sessionStorage.getItem('user'),
-                mealName:           '',
-                mealID:             '',
-                meal:               [],
-                totalCalories:      '',
-                totalProtein:       '',
-                totalCarbohydrates: '',
-                totalFats:          '',
-                totalSalt:          '',
-                totalWater:         '',
-                totalAsh:           '',
-                date:               ''
-            },
+            mealName:           sessionStorage.getItem('name'),
+            food:               '',
+            category:           '',
+            quantity:           '',
+            calories:           '',
+            protein:            '',
+            carbohydrates:      '',
+            fats:               '',
+            salt:               '',
+            water:              '',
+            ash:                '',
+            totalCalories:      0,
+            totalProtein:       0,
+            totalCarbohydrates: 0,
+            totalFats:          0,
+            totalSalt:          0,
+            totalWater:         0,
+            totalAsh:           0,
             // Fel- och bekräftelsemeddelanden (skrivs ut om true)
             error:                 false,
             errorMessage:          '',
@@ -192,15 +166,11 @@ class Admin extends React.Component {
                                 onBlur={this.handleAshChange}></input>
                         </div>
                         {/* Lägger till ingrediensen */}
-                        {this.state.editMeals ? <input className="submit" type="submit" 
-                            value="Uppdatera ingrediens" onClick={this.editMeal}></input> :
-                            <input className="submit" type="submit" value="Lägg till ingrediens" 
-                            onClick={this.addFood}></input>}
+                        <input className="submit" type="submit" value="Lägg till ingrediens" 
+                            onClick={this.addFood}></input>
                         {/* Lägger till måltiden */}
-                        {this.state.editMeals ? <input className="submit" type="submit" 
-                            value="Uppdatera måltid" onClick={this.updateMeal}></input> :
-                            <input className="submit-meal" type="submit" value="Lägg till måltid" 
-                            onClick={this.addMeal}></input>}
+                        <input className="submit-meal" type="submit" value="Lägg till måltid" 
+                            onClick={this.addMeal}></input>
                         <input type="reset" value="Rensa" id="reset" className="reset"></input>
                     </div>
                     {/* Skriver ut eventuella felmeddelanden */}
@@ -302,8 +272,7 @@ class Admin extends React.Component {
                                     </tr>
                                     {/* Länkar för redigering och borttagning */}
                                     <tr>
-                                        <td className="meal-heading"><a id={`edit${element.mealID}`} 
-                                            href="#admin-form" className="link" onClick={this.editMeal}>Redigera</a></td>
+                                        <td className="meal-heading"></td>
                                         <td className="meal-detail"><a id={`delete${element.mealID}`} 
                                             href="" className="link" onClick={this.deleteMeal}>Radera</a></td>
                                     </tr>
@@ -523,6 +492,12 @@ class Admin extends React.Component {
         // Förhindrar att sidan laddas om när formuläret skickas
         e.preventDefault();
 
+        // Ändrar status
+        this.setState({
+            addMeals:    true,
+            deleteMeals: false,
+        });
+
         // Här lagras ingrediensen
         let ingredient = {
             food:          '',
@@ -560,61 +535,56 @@ class Admin extends React.Component {
         }
 
         if (!sessionStorage.getItem('error')) {
-            /* Lagrar måltidens namn i state och ingrediensen i objektet.
-                Eventuella kommatecken byts ut mot punkt. */
-            this.setState({
-                mealName: inputs[0].value, 
-            })
-
-            ingredient.food          = inputs[1].value;
-            ingredient.category      = inputs[2].value;
+            // Lagrar ingrediensen i objektet. Eventuella kommatecken byts ut mot punkt.
+            ingredient.food          = this.state.food;
+            ingredient.category      = this.state.category;
             
-            if (inputs[3].value.indexOf(',') != -1) {
-                ingredient.quantity = inputs[3].value.replace(',', '.');
+            if (this.state.quantity.indexOf(',') != -1) {
+                ingredient.quantity = this.state.quantity.replace(',', '.');
             } else {
-                ingredient.quantity = inputs[3].value;
+                ingredient.quantity = this.state.quantity;
             }
 
-            if (inputs[4].value.indexOf(',') != -1) {
-                ingredient.calories = inputs[4].value.replace(',', '.');
+            if (this.state.calories.indexOf(',') != -1) {
+                ingredient.calories = this.state.calories.replace(',', '.');
             } else {
-                ingredient.calories = inputs[4].value;
+                ingredient.calories = this.state.calories;
             }
 
-            if (inputs[5].value.indexOf(',') != -1) {
-                ingredient.protein = inputs[5].value.replace(',', '.');
+            if (this.state.protein.indexOf(',') != -1) {
+                ingredient.protein = this.state.protein.replace(',', '.');
             } else {
-                ingredient.protein = inputs[5].value;
+                ingredient.protein = this.state.protein;
             }
 
-            if (inputs[6].value.indexOf(',') != -1) {
-                ingredient.carbohydrates = inputs[6].value.replace(',', '.');
+            if (this.state.carbohydrates.indexOf(',') != -1) {
+                ingredient.carbohydrates = this.state.carbohydrates.replace(',', '.');
             } else {
-                ingredient.carbohydrates = inputs[6].value;
+                ingredient.carbohydrates = this.state.carbohydrates;
             }
 
-            if (inputs[7].value.indexOf(',') != -1) {
-                ingredient.fats = inputs[7].value.replace(',', '.');
+            if (this.state.fats.indexOf(',') != -1) {
+                ingredient.fats = this.state.fats.replace(',', '.');
             } else {
-                ingredient.fats = inputs[7].value;
+                ingredient.fats = this.state.fats;
             }
 
-            if (inputs[8].value.indexOf(',') != -1) {
-                ingredient.salt = inputs[8].value.replace(',', '.');
+            if (this.state.salt.indexOf(',') != -1) {
+                ingredient.salt = this.state.salt.replace(',', '.');
             } else {
-                ingredient.salt = inputs[8].value;
+                ingredient.salt = this.state.salt;
             }
 
-            if (inputs[9].value.indexOf(',') != -1) {
-                ingredient.water = inputs[9].value.replace(',', '.');
+            if (this.state.water.indexOf(',') != -1) {
+                ingredient.water = this.state.water.replace(',', '.');
             } else {
-                ingredient.water = inputs[9].value;
+                ingredient.water = this.state.water;
             }
 
-            if (inputs[10].value.indexOf(',') != -1) {
-                ingredient.ash = inputs[10].value.replace(',', '.');
+            if (this.state.ash.indexOf(',') != -1) {
+                ingredient.ash = this.state.ash.replace(',', '.');
             } else {
-                ingredient.ash = inputs[10].value;
+                ingredient.ash = this.state.ash;
             }
 
             /* Här räknas näringstäthet och -värde ut för ingrediensen och måltiden totalt.
@@ -623,22 +593,34 @@ class Admin extends React.Component {
                 med procentandelen. */ 
             let percentage = ingredient.quantity / 100;
 
-            totalCalories            += (parseFloat(ingredient.calories) * percentage);
-            ingredient.calories      =  (parseFloat(ingredient.calories) * percentage);
-            totalProtein             += (parseFloat(ingredient.protein) * percentage);
-            ingredient.protein       =  (parseFloat(ingredient.protein) * percentage);
-            totalCarbohydrates       += (parseFloat(ingredient.carbohydrates) * percentage);
+            let calories             = (parseFloat(ingredient.calories)       * percentage);
+            ingredient.calories      =  (parseFloat(ingredient.calories)      * percentage);
+            let protein              = (parseFloat(ingredient.protein)        * percentage);
+            ingredient.protein       =  (parseFloat(ingredient.protein)       * percentage);
+            let carbohydrates        = (parseFloat(ingredient.carbohydrates)  * percentage);
             ingredient.carbohydrates =  (parseFloat(ingredient.carbohydrates) * percentage);
-            totalFats                += (parseFloat(ingredient.fats) * percentage);
-            ingredient.fats          =  (parseFloat(ingredient.fats) * percentage);
-            totalSalt                += (parseFloat(ingredient.salt) * percentage);
-            ingredient.salt          =  (parseFloat(ingredient.salt) * percentage);
-            totalWater               += (parseFloat(ingredient.water) * percentage);
-            ingredient.water         =  (parseFloat(ingredient.water) * percentage);
-            totalAsh                 += (parseFloat(ingredient.ash) * percentage);
-            ingredient.ash           =  (parseFloat(ingredient.ash) * percentage);
+            let fats                 = (parseFloat(ingredient.fats)           * percentage);
+            ingredient.fats          =  (parseFloat(ingredient.fats)          * percentage);
+            let salt                 = (parseFloat(ingredient.salt)           * percentage);
+            ingredient.salt          =  (parseFloat(ingredient.salt)          * percentage);
+            let water                = (parseFloat(ingredient.water)          * percentage);
+            ingredient.water         =  (parseFloat(ingredient.water)         * percentage);
+            let ash                  = (parseFloat(ingredient.ash)            * percentage);
+            ingredient.ash           =  (parseFloat(ingredient.ash)           * percentage);
+
+            // Lagrar/uppdaterar summeringen i state
+            this.setState({
+                totalCalories:      this.state.totalCalories      + calories,
+                totalProtein:       this.state.totalProtein       + protein,
+                totalCarbohydrates: this.state.totalCarbohydrates + carbohydrates,
+                totalFats:          this.state.totalFats          + fats,
+                totalSalt:          this.state.totalSalt          + salt,
+                totalWater:         this.state.totalWater         + water,
+                totalAsh:           this.state.totalAsh           + ash,
+            })
 
             // Avrundar näringsvärdena till en decimal
+            ingredient.calories      = ingredient.calories.toFixed(2);
             ingredient.protein       = ingredient.protein.toFixed(2);
             ingredient.carbohydrates = ingredient.carbohydrates.toFixed(2);
             ingredient.fats          = ingredient.fats.toFixed(2);
@@ -649,10 +631,12 @@ class Admin extends React.Component {
 
         if (!sessionStorage.getItem('error')) {
             // Lägger till ingrediensen i arrayen
-            ingredients.push(ingredient);
+            this.setState({
+                ingredients: [...this.state.ingredients, ingredient],
+            })
             
             // Skriver ut ett bekräftelsemeddelande
-            this.setState(/* state => */ {
+            this.setState({
                 confirm:        true,
                 confirmMessage: 'Ingrediensen har lagts till.',
             })
@@ -670,10 +654,6 @@ class Admin extends React.Component {
     addMeal(e) {
         // Förhindrar att sidan laddas om när formuläret skickas
         e.preventDefault();
-        // Ändrar status
-        this.setState({
-            editMeals: false,
-        });
 
         // Arrayen används för att räkna ut ett id
         let userMeals = this.state.meals;
@@ -683,320 +663,51 @@ class Admin extends React.Component {
             return a.mealID - b.mealID;
         })
 
-        if (!this.state.editMeals) {
-            let date = new Date();
-            // Måltiden som skickas med fetch-anropet. Summeringarna avrundas till en decimal.
-            const body = {
-                username:           sessionStorage.getItem('user'),
-                mealName:           this.state.mealName,
-                mealID:             userMeals[userMeals.length - 1].mealID + 1,
-                meal:               Object.values(ingredients),
-                totalCalories:      totalCalories.toFixed(2),
-                totalProtein:       totalProtein.toFixed(2),
-                totalCarbohydrates: totalCarbohydrates.toFixed(2),
-                totalFats:          totalFats.toFixed(2),
-                totalSalt:          totalSalt.toFixed(2),
-                totalWater:         totalWater.toFixed(2),
-                totalAsh:           totalAsh.toFixed(2),
-                date:               date.toLocaleDateString()
-            };
-
-            // POST-anrop
-            fetch('https://food-diary-rest-api.herokuapp.com/meals', {
-                method:  'POST',
-                headers: {'Content-Type': 'application/json',},
-                body:    JSON.stringify(body),
-            })
-            // Konverterar svaret från JSON
-            .then(response => response.json())
-            .then((data) => {
-                // Användarens måltider i en array, lägger till den nya måltiden och uppdaterar state-arrayen
-                let mealArr = this.state.meals;
-                mealArr.unshift(data);
-
-                // Genererar ett bekräftelsemeddelande
-                this.setState({
-                    confirm:        true,
-                    confirmMessage: 'Måltiden har lagts till.',
-                    meals:          mealArr,
-                });
-            })
-            .catch(() => {
-                // Genererar ett felmeddelande vid serverfel
-                this.setState({
-                    error:        true,
-                    errorMessage: 'Ett serverfel har uppstått. Det gick inte att lägga till måltiden.' 
-                        + ' Försök igen senare.',
-                })
-            })
-
-            // Tömmer arrayen med ingredienser
-            ingredients = [];
-        }
-    }
-    
-    // Redigerar måltiden innan den uppdateras
-    editMeal(e) {
-        // Förhindrar att sidan laddas om
-        e.preventDefault();
-
-        // Objektet lagrar ingredienser
-        let ingredient = {
-            food:          '',
-            category:      '',
-            quantity:      '',
-            calories:      '',
-            protein:       '',
-            carbohydrates: '',
-            fats:          '',
-            salt:          '',
-            water:         '',
-            ash:           ''
-        };
-
-        // Id för den måltid som redigeras
-        const index = e.target.id.slice(4);
-
-        // Uppdaterar status för lagring, borttagning och redigering
-        this.setState({
-            addMeals:    false,
-            deleteMeals: false,
-            editMeals:   true,
-        });
-
-        // Lagrar namn, ingredienser, id och datum för måltiden som redigeras
-        this.state.meals.map(meal => {
-            if (meal.mealID == index && meal.username == sessionStorage.getItem('user')) {
-                inputs[0].value = meal.mealName;
-                ingredients = meal.meal;
-
-                sessionStorage.setItem('mealID', meal.mealID);
-                sessionStorage.setItem('mealName', meal.mealName);
-                sessionStorage.setItem('date', meal.date);
-
-                this.setState({
-                    meal: meal,
-                })
-            }
-        })
-
-        /* Lagrar längden på arrayen med ingredienser som ingår i måltiden.
-            Denna array används för att fylla i formuläret. */
-        const length = ingredients.length;
-
-        /* Inmatningsfälten fylls i med befintliga värden från arrayen i syfte att
-            underlätta redigeringen */ 
-        if (count < length) {
-            inputs[1].value = ingredients[count].food;
-            inputs[2].value = ingredients[count].category;
-            inputs[3].value = ingredients[count].quantity;
-            inputs[4].value = ingredients[count].calories;    
-            inputs[5].value = ingredients[count].protein; 
-            inputs[6].value = ingredients[count].carbohydrates;
-            inputs[7].value = ingredients[count].fats;
-            inputs[8].value = ingredients[count].salt;
-            inputs[9].value = ingredients[count].water;
-            inputs[10].value = ingredients[count].ash;
-
-            this.setState({
-                food:             this.state.meal.food,
-                category:         this.state.meal.category,
-                quantity:         this.state.meal.quantity,
-                calories:         this.state.meal.calories,
-                protein:          this.state.meal.protein,
-                carbohydrates:    this.state.meal.carbohydrates,
-                fats:             this.state.meal.fats,
-                salt:             this.state.meal.salt,
-                water:            this.state.meal.water,
-                ash:              this.state.meal.ash,
-            })
-        }
-
-        if (e.target.className == 'submit') {
-            /* Här kontrolleras att alla inmatningsfält är ifyllda.
-                Om så inte är fallet, skrivs ett felmeddelande ut. */
-            for (let i = 0; i < inputs.length; i++) {
-                if (inputs[i].value == '') {
-                    sessionStorage.setItem('error', true);
-
-                    this.setState({
-                        error:        true,
-                        errorMessage: 'Alla fält är obligatoriska.',
-                    });
-    
-                } else {
-                    sessionStorage.removeItem('error');
-
-                    this.setState({
-                        error:        false,
-                        errorMessage: '',
-                    });
-                }
-            }
-    
-            /* Om formuläret är korrekt ifyllt, lagras inmatningarna i objektet.
-                Näringstäthet och näringsvärde för varje ingrediens och måltiden i helhet
-                beräknas och lagras. Detta sker på exakt samma sätt som vid lagring av måltider.
-                Sedan läggs ingrediensen till i arrayen med uppdaterade ingredienser,
-                ett bekräftelsemeddelande skrivs ut och variabelns värde ökas inför nästa anrop. */
-
-            if (!sessionStorage.getItem('error')) {    
-                ingredient.food     = this.state.food;
-                ingredient.category = this.state.food;
-                
-                if (this.state.quantity.indexOf(',') != -1) {
-                    ingredient.quantity = this.state.quantity.replace(',', '.');
-                } else {
-                    ingredient.quantity = this.state.quantity;
-                }
-    
-                if (this.state.calories.indexOf(',') != -1) {
-                    ingredient.calories = this.state.calories.replace(',', '.');
-                } else {
-                    ingredient.calories = this.state.calories;
-                }
-    
-                if (this.state.protein.indexOf(',') != -1) {
-                    ingredient.protein = this.state.protein.replace(',', '.');
-                } else {
-                    ingredient.protein = this.state.protein;
-                }
-    
-                if (this.state.carbohydrates.indexOf(',') != -1) {
-                    ingredient.carbohydrates = this.state.carbohydrates.replace(',', '.');
-                } else {
-                    ingredient.carbohydrates = this.state.carbohydrates;
-                }
-    
-                if (this.state.fats.indexOf(',') != -1) {
-                    ingredient.fats = this.state.fats.replace(',', '.');
-                } else {
-                    ingredient.fats = this.state.fats;
-                }
-    
-                if (this.state.salt.indexOf(',') != -1) {
-                    ingredient.salt = this.state.salt.replace(',', '.');
-                } else {
-                    ingredient.salt = this.state.salt;
-                }
-    
-                if (this.state.water.indexOf(',') != -1) {
-                    ingredient.water = this.state.water.replace(',', '.');
-                } else {
-                    ingredient.water = this.state.water;
-                }
-    
-                if (this.state.ash.indexOf(',') != -1) {
-                    ingredient.ash = this.state.ash.replace(',', '.');
-                } else {
-                    ingredient.ash = this.state.ash;
-                }
-    
-                let percentage = ingredient.quantity / 100;
-    
-                totalCalories            += (parseFloat(ingredient.calories) * percentage);
-                ingredient.calories      =  (parseFloat(ingredient.calories) * percentage);
-                totalProtein             += (parseFloat(ingredient.protein) * percentage);
-                ingredient.protein       =  (parseFloat(ingredient.protein) * percentage);
-                totalCarbohydrates       += (parseFloat(ingredient.carbohydrates) * percentage);
-                ingredient.carbohydrates =  (parseFloat(ingredient.carbohydrates) * percentage);
-                totalFats                += (parseFloat(ingredient.fats) * percentage);
-                ingredient.fats          =  (parseFloat(ingredient.fats) * percentage);
-                totalSalt                += (parseFloat(ingredient.salt) * percentage);
-                ingredient.salt          =  (parseFloat(ingredient.salt) * percentage);
-                totalWater               += (parseFloat(ingredient.water) * percentage);
-                ingredient.water         =  (parseFloat(ingredient.water) * percentage);
-                totalAsh                 += (parseFloat(ingredient.ash) * percentage);
-                ingredient.ash           =  (parseFloat(ingredient.ash) * percentage);
-
-                // Avrundar näringsvärdena till en decimal
-                ingredient.protein       = ingredient.protein.toFixed(2);
-                ingredient.carbohydrates = ingredient.carbohydrates.toFixed(2);
-                ingredient.fats          = ingredient.fats.toFixed(2);
-                ingredient.salt          = ingredient.salt.toFixed(2);
-                ingredient.water         = ingredient.water.toFixed(2);
-                ingredient.ash           = ingredient.ash.toFixed(2);
-            }
-
-            if (!sessionStorage.getItem('error')) {
-                this.setState({
-                    confirm:        true,
-                    confirmMessage: 'Ingrediensen har uppdaterats.',
-                })
-            }
-
-            setTimeout(() => {
-                this.setState({
-                    confirm:        false,
-                    confirmMessage: '',
-                })
-            }, 5000);
-        }
-
-        count++;
-    }
-
-    // Här uppdateras måltiden i databasen
-    updateMeal(e) {
-        // Förhindrar att sidan laddas om
-        e.preventDefault();
-
-        /* Body med de uppdaterade värdena. Summeringarna avrundas till en decimal. */
+        let date = new Date();
+        // Måltiden som skickas med fetch-anropet. Summeringarna avrundas till en decimal.
         const body = {
             username:           sessionStorage.getItem('user'),
-            mealID:             sessionStorage.getItem('mealID'),
-            mealName:           sessionStorage.getItem('mealName'),
-            meal:               Object.values(updatedIngredients),
-            totalCalories:      totalCalories.toFixed(2),
-            totalProtein:       totalProtein.toFixed(2),
-            totalCarbohydrates: totalCarbohydrates.toFixed(2),
-            totalFats:          totalFats.toFixed(2),
-            totalSalt:          totalSalt.toFixed(2),
-            totalWater:         totalWater.toFixed(2),
-            totalAsh:           totalAsh.toFixed(2),
-            date:               sessionStorage.getItem('date'),
-        }
+            mealName:           this.state.mealName,
+            mealID:             userMeals[userMeals.length - 1].mealID + 1,
+            meal:               Object.values(this.state.ingredients),
+            totalCalories:      this.state.totalCalories.toFixed(2),
+            totalProtein:       this.state.totalProtein.toFixed(2),
+            totalCarbohydrates: this.state.totalCarbohydrates.toFixed(2),
+            totalFats:          this.state.totalFats.toFixed(2),
+            totalSalt:          this.state.totalSalt.toFixed(2),
+            totalWater:         this.state.totalWater.toFixed(2),
+            totalAsh:           this.state.totalAsh.toFixed(2),
+            date:               date.toLocaleDateString()
+        };
 
-        // PUT-anrop
-        if (this.state.editMeals) {
-            fetch(`https://food-diary-rest-api.herokuapp.com/meals/id/${body.mealID}/user/${body.username}`, {
-                method:  'PUT',
-                headers: {'Content-Type': 'application/json',},
-                body:    JSON.stringify(body),
+        // POST-anrop
+        fetch('https://food-diary-rest-api.herokuapp.com/meals', {
+            method:  'POST',
+            headers: {'Content-Type': 'application/json',},
+            body:    JSON.stringify(body),
+        })
+        // Konverterar svaret från JSON
+        .then(response => response.json())
+        .then((data) => {
+            // Användarens måltider i en array, lägger till den nya måltiden och uppdaterar state-arrayen
+            let mealArr = this.state.meals;
+            mealArr.unshift(data);
+
+            // Genererar ett bekräftelsemeddelande
+            this.setState({
+                confirm:        true,
+                confirmMessage: 'Måltiden har lagts till.',
+                meals:          mealArr,
+            });
+        })
+        .catch(() => {
+            // Genererar ett felmeddelande vid serverfel
+            this.setState({
+                error:        true,
+                errorMessage: 'Ett serverfel har uppstått. Det gick inte att lägga till måltiden.' 
+                    + ' Försök igen senare.',
             })
-            // Konverterar svaret från JSON
-            .then(response => response.json())
-            .then((data) => {
-                /* Användarens måltider i en array, lägger till den uppdaterade måltiden och 
-                    uppdaterar state-arrayen */
-                let mealArr = this.state.meals;
-
-                for (let i = 0; i < mealArr.length; i++) {
-                    if (mealArr[i].id == data.id) {
-                        mealArr.splice(i, 1, data);
-                    }
-                }
-
-                // Genererar ett bekräftelsemeddelande
-                this.setState({
-                    confirm:        true,
-                    confirmMessage: 'Måltiden har uppdaterats.',
-                    meals:          mealArr,
-                });
-            })
-            .catch(() => {
-                // Genererar ett felmeddelande vid serverfel
-                this.setState({
-                    error:        true,
-                    errorMessage: 'Ett serverfel har uppstått. Det gick inte att uppdatera måltiden.'
-                        + ' Försök igen senare.'
-                })
-            })
-
-            // Tömmer arrayerna med ingredienser
-            ingredients        = [];
-            updatedIngredients = [];
-        }
+        })
     }
 
     // Raderar måltider
@@ -1008,7 +719,6 @@ class Admin extends React.Component {
 
         this.setState({
             addMeals:    false,
-            editMeals:   false,
             deleteMeals: true,
         });
 
@@ -1028,6 +738,7 @@ class Admin extends React.Component {
             for (let i = 0; i < mealArr.length; i++) {
                 if (mealArr[i].mealID == index) {
                     mealArr.splice(i, 1);
+                    return mealArr;
                 }
             }
 
