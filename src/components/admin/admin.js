@@ -39,10 +39,8 @@ class Admin extends React.Component {
         this.state = {
             /* Dessa properties används främst för att styra gränssnittets 
             utseende beroende på vad som ska göras */
-            addMeals:           true,
             getAllMeals:        true,
             getSelectedMeals:   false,
-            deleteMeals:        false,
             // Tidsintervall vid filtrering av måltider
             dateRange:          '',
             // Måltider
@@ -498,12 +496,6 @@ class Admin extends React.Component {
         // Förhindrar att sidan laddas om när formuläret skickas
         e.preventDefault();
 
-        // Ändrar status
-        this.setState({
-            addMeals:    true,
-            deleteMeals: false,
-        });
-
         // Här lagras ingrediensen. Varje objekt läggs till i state-arrayen (ingredients)
         let ingredient = {
             food:          '',
@@ -708,12 +700,11 @@ class Admin extends React.Component {
         // Konverterar svaret från JSON
         .then(response => response.json())
         .then((data) => {
-            console.log(data);
             /* Lagrar användarens måltider i en array, 
                 lägger till den nya måltiden och uppdaterar state-arrayen */
             let mealArr = this.state.meals;
-            mealArr     = data.concat(mealArr);
-            console.log(mealArr);
+            mealArr.push(data);
+            mealArr.reverse();
 
             // Genererar ett bekräftelsemeddelande
             this.setState({
@@ -723,7 +714,6 @@ class Admin extends React.Component {
             });
         })
         .catch(() => {
-            console.log('foo');
             // Genererar ett felmeddelande vid serverfel
             this.setState({
                 error:        true,
@@ -740,12 +730,6 @@ class Admin extends React.Component {
         // Lagrar måltidens id
         const index = e.target.id.slice(6);
 
-        // Ändrar status
-        this.setState({
-            addMeals:    false,
-            deleteMeals: true,
-        });
-
         // DELETE-anrop
         fetch(`https://food-diary-rest-api.herokuapp.com/meals/id/${index}/user/${sessionStorage.getItem('user')}`, {
             method: 'DELETE',
@@ -755,21 +739,16 @@ class Admin extends React.Component {
         // Konverterar svaret från JSON
         .then(response => response.json())
         .then((data) => {
-            /* Användarens måltider i en array, tar bort den raderade måltiden och 
-                uppdaterar state-arrayen */
-            console.log(data);
-
+            /* Lagrar användarens måltider i en array, tar bort den raderade måltiden och 
+            uppdaterar state-arrayen */
             let mealArr = this.state.meals;
-            console.log(mealArr);
             
             for (let i = 0; i < mealArr.length; i++) {
-                if (mealArr[i].mealID == index) {
+                if (mealArr[i].mealID == data.mealID) {
                     mealArr.splice(i, 1);
                     return mealArr;
                 }
             }
-
-            console.log(mealArr);
 
             // Genererar ett bekräftelsemeddelande
             this.setState({
