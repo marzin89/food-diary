@@ -43,7 +43,7 @@ class Main extends React.Component {
         <section style={ this.state.signedIn ? {display: 'none'} : {display: 'block'}} 
           className="welcome">
           <h1>Välkommen till FooDiary</h1>
-          <p>Logga in eller för att använda kostdagboken. 
+          <p>Logga in för att använda kostdagboken. 
             Använd formuläret nedan för att hitta information om livsmedel.</p>
         </section>
         {/* Om användaren är inloggad, visas Admin. 
