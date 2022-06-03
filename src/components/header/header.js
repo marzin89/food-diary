@@ -3,7 +3,7 @@ import React from 'react';
 
 // Sidhuvud
 function Header() {
-    return(
+    return (
         <header>    
             <p id="logo">FooDiary</p>
         </header>

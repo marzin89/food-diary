@@ -1,4 +1,4 @@
-// Imports
+// Importerar komponenterna och React
 import Header from './components/header/header';
 import Footer from './components/footer/footer';
 import Login from './components/login/login';
@@ -7,7 +7,7 @@ import Admin from './components/admin/admin';
 import React from 'react';
 import { findAllByDisplayValue } from '@testing-library/react';
 
-// Main-komponenten som innehåller "sidorna"
+// Main-komponenten som rendrerar användargränssnittet
 class Main extends React.Component {
 
   // Konstruktor
@@ -19,7 +19,7 @@ class Main extends React.Component {
     this.logoutCallback = this.logoutCallback.bind(this);
 
     /* Här lagras status för inloggning samt felmeddelanden. 
-      Vilka sektioner som visas/döljs styrs i hög grad härifrån. */
+      Vilka komponenter som visas/döljs styrs i hög grad härifrån. */
     this.state = {
       username:     sessionStorage.getItem('user'),
       signedIn:     sessionStorage.getItem('signedIn'),
@@ -35,25 +35,23 @@ class Main extends React.Component {
 
   // Rendrering
   /* Första sektionen och inloggninsformuläret döljs om användaren är inloggad. 
-    Istället visas admin-formuläret och sökformuläret. Inloggning och utloggning 
-    sköts via callback-funktioner som skickas med som props. Även användarnamnet 
-    skickas med eftersom det behövs på admin-sidan. */
+    Istället visas admin-formuläret och sökformuläret (som importeras till Admin). 
+    Inloggning och utloggning sköts via callback-funktioner som skickas med som props. */
   render() {
     return (
       <main>
-        <section className="welcome">
-          <h1 style={ this.state.signedIn ? {display: 'none'} : {display: 'block'}}>
-            Välkommen till FooDiary</h1>
-          <p style={ this.state.signedIn ? {display: 'none'} : {display: 'block'}}>
-            Logga in eller för att använda kostdagboken. 
+        <section style={ this.state.signedIn ? {display: 'none'} : {display: 'block'}} 
+          className="welcome">
+          <h1>Välkommen till FooDiary</h1>
+          <p>Logga in eller för att använda kostdagboken. 
             Använd formuläret nedan för att hitta information om livsmedel.</p>
         </section>
-        {/* Om användaren är inloggad, visas Admin. Annars visas inloggningsformuläret
-          och sökformuläret */}
+        {/* Om användaren är inloggad, visas Admin. 
+          Annars visas inloggningsformuläret och sökformuläret */}
         { this.state.signedIn ? <Admin function={this.logoutCallback} /> : 
           <Login function={this.loginCallback} errorMessage={this.state.errorMessage} /> }
         {/* Sökformuläret visas på ett annat ställe i koden när användaren är inloggad.
-          Därför döljs det här och importeras på Admin.  */}
+          Därför döljs det här och importeras till Admin.  */}
         {this.state.signedIn ? null : <Search />}
       </main>
     )
@@ -86,8 +84,7 @@ class Main extends React.Component {
         })
 
       } else {
-        /* Sessionen används för att användaren inte ska "loggas ut"
-          om sidan laddas om. */
+        /* Sessionen används för att användaren inte ska "loggas ut" om sidan laddas om. */
         sessionStorage.setItem('signedIn', true);
         sessionStorage.setItem('user', username);
 
@@ -113,7 +110,7 @@ class Main extends React.Component {
   // Callback-funktion som sköter utloggningen
   logoutCallback() {
 
-    // Ändrar sessionen
+    // Raderar sessionen
     sessionStorage.removeItem('signedIn');
     sessionStorage.removeItem('user');
 
@@ -128,13 +125,14 @@ class Main extends React.Component {
   }
 }
 
-// Huvudkomponenten som rendrerar sidhuvud, innehåll och sidfot
+/* Huvudkomponenten som rendrerar sidhuvud, innehåll och sidfot.
+  Året i sidfoten (copyright) skickas med som props. */
 function App() {
   return (
     <div id="page-wrapper">
       <Header />  
       <Main />
-      <Footer />
+      <Footer year={new Date().getFullYear()} />
     </div>
   );
 }

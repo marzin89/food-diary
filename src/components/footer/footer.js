@@ -1,11 +1,11 @@
 // Importerar React
 import React from 'react';
 
-// Sidfot
-function Footer() {
-    return(
+// Sidfot med "dynamiskt" år 
+function Footer(props) {
+    return (
         <footer>
-            <p id="copyright">Copyright 2021</p>
+            <p id="copyright">Copyright {props.year}</p>
         </footer>
     )
 }

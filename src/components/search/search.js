@@ -1,6 +1,5 @@
-// Imports
+// Importerar React och komponenten som visar sökresultat
 import React from 'react';
-// import './css/styles.css';
 import SearchResults from './results/search-results';
 
 // Sökformuläret
@@ -75,7 +74,8 @@ class Search extends React.Component {
                         {this.state.errorMessage}</p>
                 </form>
                 {/* Här visas sökresultat när formuläret har skickats och inga felmeddelanden finns */}
-                {this.state.submitted && !this.state.error ? <SearchResults foods={this.state.foods} /> : null} 
+                {this.state.submitted && !this.state.error ? <SearchResults foods={this.state.foods} /> 
+                    : null} 
             </section>
         )
     }

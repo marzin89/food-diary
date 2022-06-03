@@ -1,4 +1,4 @@
-// Importerar, React, sökformuläret och CSS
+// Importerar React och sökformuläret
 import React from 'react';
 import { useState } from 'react/cjs/react.production.min';
 import Search from '../search/search';
@@ -6,7 +6,7 @@ import Search from '../search/search';
 // Inmatningsfält för måltider
 const inputs = document.getElementsByClassName('meal-input');
 
-// Admin-formuläret
+// Admin
 class Admin extends React.Component {
 
     // Konstruktor
@@ -61,6 +61,7 @@ class Admin extends React.Component {
             salt:               '',
             water:              '',
             ash:                '',
+            // Summering av hela måltiden 
             totalCalories:      0,
             totalProtein:       0,
             totalCarbohydrates: 0,
@@ -71,6 +72,7 @@ class Admin extends React.Component {
             // Fel- och bekräftelsemeddelanden (skrivs ut om true)
             error:                 false,
             errorMessage:          '',
+            // Denna visas bara om inget tidsintervall har valts
             errorMessageDateRange: '',
             confirm:               false,
             confirmMessage:        '',
@@ -79,10 +81,11 @@ class Admin extends React.Component {
         // Ändrar sidans namn
         document.title = 'Admin';
 
+        // Hämtar alla måltider när komponenten laddas
         this.getAllMeals();
     }
 
-    // Rendrering (visas om användaren är inloggad)
+    // Rendrering
     render() {
         return (
             <div>
@@ -197,6 +200,7 @@ class Admin extends React.Component {
                             <label htmlFor="get-meals-date-range-radio" className="admin-form-radio-right">Begränsad tidsperiod
                             </label>
                         </div>
+                        {/* Här väljer användaren tidsperiod */}
                         <select id="date-range" onChange={this.handleDateRangeChange}>
                             <option value="">-</option>
                             <option value="Senaste veckan">Senaste veckan</option>
@@ -206,7 +210,7 @@ class Admin extends React.Component {
                             <option value="Senaste året">Senaste året</option>
                         </select>
                     </div>
-                    {/* Hämtar måltider */}
+                    {/* Hämtar måltider vid klick */}
                     <button id="get-meals-submit" onClick={this.getMeals}>Filtrera</button>
                     {/* Skriver ut eventuella felmeddelanden */}
                     <p className="error" style={this.state.error ? {display: 'block'} : {display: 'none'}}>
@@ -270,7 +274,7 @@ class Admin extends React.Component {
                                         <td className="meal-heading">Aska</td>
                                         <td className="meal-detail">{element.totalAsh} g</td>
                                     </tr>
-                                    {/* Länkar för redigering och borttagning */}
+                                    {/* Länk för borttagning */}
                                     <tr>
                                         <td className="meal-heading"></td>
                                         <td className="meal-detail"><a id={`delete${element.mealID}`} 
@@ -416,6 +420,7 @@ class Admin extends React.Component {
             })
         })
     }
+
     // Hämtar användarens måltider för vald tidsperiod
     getMealsByDateRange() {
         // GET-anrop
@@ -424,7 +429,7 @@ class Admin extends React.Component {
         .then(response => response.json()
         .then(data => {
             if (!data.length) {
-                // Tömmer state-arrayen och lagrar ett felmeddelande om inga måltider hittades
+                // Lagrar ett felmeddelande om inga måltider hittades
                 this.setState({
                     error:        true,
                     errorMessage: 'Kunde inte hitta några måltider.',
@@ -447,14 +452,15 @@ class Admin extends React.Component {
             })
         })
     }
-    // Funktionen körs när formuläret skickas och när sidan laddas om
+
+    // Funktionen körs när formuläret skickas
     getMeals(e) {
         // Förhindrar att sidan laddas om
         e.preventDefault();
         /* Beroende på vad som finns lagras i state så hämtas alla måltider,
             eller måltider för vald tidsperiod. Om användaren har valt att
             filtrera på datum, men inte angett någon tidsperiod, skrivs ett
-            felmeddelande ut. */
+            felmeddelande ut. Annars tas eventuella felmeddelanden bort. */
         if (this.state.getAllMeals) {
             sessionStorage.removeItem('error');
 
@@ -498,7 +504,7 @@ class Admin extends React.Component {
             deleteMeals: false,
         });
 
-        // Här lagras ingrediensen
+        // Här lagras ingrediensen. Varje objekt läggs till i state-arrayen (ingredients)
         let ingredient = {
             food:          '',
             category:      '',
@@ -516,6 +522,9 @@ class Admin extends React.Component {
         for (let i = 0; i < inputs.length; i++) {
             // Skriver ut ett felmeddelande om ett inmatningsfält är tomt
             if (inputs[i].value == '') {
+                /* sessionStorage används här eftersom setState är asynkront. 
+                    Vilket leder till att valideringen "lyckas" om jag använder
+                    setState/state, även om något/några inmatningsfält är tomma. */ 
                 sessionStorage.setItem('error', true);
                 
                 this.setState({
@@ -535,7 +544,8 @@ class Admin extends React.Component {
         }
 
         if (!sessionStorage.getItem('error')) {
-            // Lagrar ingrediensen i objektet. Eventuella kommatecken byts ut mot punkt.
+            /* Lagrar ingrediensen i objektet. Eventuella kommatecken byts ut mot punkt.
+                Detta krävs för att det ska gå att beräkna näringsvärdet längre ner. */
             ingredient.food          = this.state.food;
             ingredient.category      = this.state.category;
             
@@ -619,7 +629,7 @@ class Admin extends React.Component {
                 totalAsh:           this.state.totalAsh           + ash,
             })
 
-            // Avrundar näringsvärdena till en decimal
+            // Avrundar näringsvärdena till två decimaler
             ingredient.calories      = ingredient.calories.toFixed(2);
             ingredient.protein       = ingredient.protein.toFixed(2);
             ingredient.carbohydrates = ingredient.carbohydrates.toFixed(2);
@@ -641,6 +651,7 @@ class Admin extends React.Component {
                 confirmMessage: 'Ingrediensen har lagts till.',
             })
 
+            // Tar bort bekräftelsemeddelandet efter fem sekunder
             setTimeout(() => {
                 this.setState({
                     confirm:        false,
@@ -658,7 +669,8 @@ class Admin extends React.Component {
         // Arrayen används för att räkna ut ett id
         let userMeals = this.state.meals;
 
-        // Sorterar arrayen så att den högsta siffran hamnar sist
+        /* Sorterar arrayen så att den högsta siffran hamnar sist.
+            Id:t blir då lastIndex.id + 1. */
         userMeals.sort((a, b) => {
             return a.mealID - b.mealID;
         })
@@ -689,7 +701,8 @@ class Admin extends React.Component {
         // Konverterar svaret från JSON
         .then(response => response.json())
         .then((data) => {
-            // Användarens måltider i en array, lägger till den nya måltiden och uppdaterar state-arrayen
+            /* Lagrar användarens måltider i en array, 
+                lägger till den nya måltiden och uppdaterar state-arrayen */
             let mealArr = this.state.meals;
             mealArr.unshift(data);
 
@@ -717,6 +730,7 @@ class Admin extends React.Component {
         // Lagrar måltidens id
         const index = e.target.id.slice(6);
 
+        // Ändrar status
         this.setState({
             addMeals:    false,
             deleteMeals: true,
