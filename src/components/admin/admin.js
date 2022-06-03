@@ -109,7 +109,7 @@ class Admin extends React.Component {
                     och beräknas sedan baserat på den angivna mängden. Varje fält har en handler-funktion
                     som lagrar värdet i state vid inmatning. */}
                 <form id="admin-form">
-                    <h2>{this.state.addMeals ? 'Lägg till måltider' : 'Redigera måltider'}</h2>
+                    <h2>Lägg till måltider</h2>
                     <div id="add-meals">
                         {/* Måltidens namn */}
                         <label htmlFor="meal-name">Namn på måltiden *</label>
@@ -517,30 +517,37 @@ class Admin extends React.Component {
             water:         '',
             ash:           ''
         };
+ 
+        let count = 0;
 
         // Kontrollerar om alla inmatningsfält är ifyllda
         for (let i = 0; i < inputs.length; i++) {
-            // Skriver ut ett felmeddelande om ett inmatningsfält är tomt
+            // Ökar variabelns värde om inmatningsfältet är tomt
             if (inputs[i].value == '') {
-                /* sessionStorage används här eftersom setState är asynkront. 
-                    Vilket leder till att valideringen "lyckas" om jag använder
-                    setState/state, även om något/några inmatningsfält är tomma. */ 
-                sessionStorage.setItem('error', true);
-                
-                this.setState({
-                    error:        true,
-                    errorMessage: 'Alla fält är obligatoriska.',
-                });
-
-            // Tar bort eventuella felmeddelanden om alla inmatningsfält är ifyllda
-            } else {
-                sessionStorage.removeItem('error');
-
-                this.setState({
-                    error:        false,
-                    errorMessage: '',
-                })
+                count++;
             }
+        }
+
+        // Om variabeln har ett värde, så är ett eller flera inmatningsfält tomma
+        if (count) {
+            /* sessionStorage används här eftersom setState är asynkront. 
+            Vilket leder till att valideringen "lyckas" om jag använder
+            setState/state, även om något/några inmatningsfält är tomma. */ 
+            sessionStorage.setItem('error', true);
+        
+            this.setState({
+                error:        true,
+                errorMessage: 'Alla fält är obligatoriska.',
+            });
+        
+        // Tar bort eventuella felmeddelanden om alla inmatningsfält är ifyllda
+        } else {
+            sessionStorage.removeItem('error');
+
+            this.setState({
+                error:        false,
+                errorMessage: '',
+            })
         }
 
         if (!sessionStorage.getItem('error')) {
@@ -701,10 +708,12 @@ class Admin extends React.Component {
         // Konverterar svaret från JSON
         .then(response => response.json())
         .then((data) => {
+            console.log(data);
             /* Lagrar användarens måltider i en array, 
                 lägger till den nya måltiden och uppdaterar state-arrayen */
             let mealArr = this.state.meals;
-            mealArr.unshift(data);
+            mealArr     = data.concat(mealArr);
+            console.log(mealArr);
 
             // Genererar ett bekräftelsemeddelande
             this.setState({
@@ -714,6 +723,7 @@ class Admin extends React.Component {
             });
         })
         .catch(() => {
+            console.log('foo');
             // Genererar ett felmeddelande vid serverfel
             this.setState({
                 error:        true,
@@ -744,10 +754,13 @@ class Admin extends React.Component {
 
         // Konverterar svaret från JSON
         .then(response => response.json())
-        .then(() => {
+        .then((data) => {
             /* Användarens måltider i en array, tar bort den raderade måltiden och 
                 uppdaterar state-arrayen */
+            console.log(data);
+
             let mealArr = this.state.meals;
+            console.log(mealArr);
             
             for (let i = 0; i < mealArr.length; i++) {
                 if (mealArr[i].mealID == index) {
@@ -755,6 +768,8 @@ class Admin extends React.Component {
                     return mealArr;
                 }
             }
+
+            console.log(mealArr);
 
             // Genererar ett bekräftelsemeddelande
             this.setState({
