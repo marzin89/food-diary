@@ -746,7 +746,6 @@ class Admin extends React.Component {
             for (let i = 0; i < mealArr.length; i++) {
                 if (mealArr[i].mealID == data.mealID) {
                     mealArr.splice(i, 1);
-                    return mealArr;
                 }
             }
 
