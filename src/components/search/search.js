@@ -112,7 +112,7 @@ class Search extends React.Component {
     }
 
     // Lagrar livsmedlet
-    handleNameChange(e) {   
+    handleNameChange(e) {
         this.setState({foodName: e.target.value});
     }
 
@@ -124,9 +124,8 @@ class Search extends React.Component {
     // Funktionen körs vid sökning på enbart livsmedel
     getFoodByName() {
         if (this.state.foodName && !this.state.foodCategory) {
-
-            // Anropar webbtjänsten
-            fetch(`https://food-diary-rest-api.herokuapp.com/foods/name/${this.state.foodName}`)
+            // Anropar webbtjänsten, eventuella procenttecken i namnet byts ut mot escape-tecknet
+            fetch(`https://food-diary-rest-api.herokuapp.com/foods/name/${this.state.foodName.replace('%', '%25')}`)
 
             // Konverterar från JSON
             .then(response => response.json())
@@ -199,9 +198,8 @@ class Search extends React.Component {
     // Funktionen körs vid sökning på både livsmedel och kategori
     getFoodByNameAndCategory() {
         if (this.state.foodName && this.state.foodCategory) {
-
-            // Anropar webbtjänsten
-            fetch(`https://food-diary-rest-api.herokuapp.com/foods/name/${this.state.foodName}/category/${this.state.foodCategory}`)
+            // Anropar webbtjänsten, eventuella procenttecken i namnet byts ut mot escape-tecknet
+            fetch(`https://food-diary-rest-api.herokuapp.com/foods/name/${this.state.foodName.replace('%', '%25')}/category/${this.state.foodCategory}`)
 
             // Konverterar från JSON
             .then(response => response.json())
