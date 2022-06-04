@@ -706,13 +706,20 @@ class Admin extends React.Component {
             mealArr.push(data);
             mealArr.reverse();
 
-            /* Genererar ett bekräftelsemeddelande, uppdaterar arrayen med måltider
-                och tömmer arrayen med ingredienser */
+            /* Genererar ett bekräftelsemeddelande, uppdaterar arrayen med måltider,
+                tömmer arrayen med ingredienser och nollställer summeringarna  */
             this.setState({
-                confirm:        true,
-                confirmMessage: 'Måltiden har lagts till.',
-                meals:          mealArr,
-                ingredients:    [],
+                confirm:            true,
+                confirmMessage:     'Måltiden har lagts till.',
+                meals:              mealArr,
+                ingredients:        [],
+                totalCalories:      0,
+                totalProtein:       0,
+                totalCarbohydrates: 0,
+                totalFats:          0,
+                totalSalt:          0,
+                totalWater:         0,
+                totalAsh:           0,
             });
         })
         .catch(() => {
